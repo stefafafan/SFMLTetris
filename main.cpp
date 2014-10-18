@@ -36,10 +36,10 @@ public:
 		aileronBlack.loadFromFile("./Aileron-Black.otf");
 
 		text.setFont(aileronBlack);
-        text.setPosition(10, 10);
-        text.setCharacterSize(35.f);
-        text.setColor(sf::Color::White);
-        text.setString("Tetris");
+		text.setPosition(10, 10);
+		text.setCharacterSize(35.f);
+		text.setColor(sf::Color::White);
+		text.setString("Tetris");
 	}
 	auto run()
 	{
