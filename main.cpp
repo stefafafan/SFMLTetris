@@ -1,34 +1,85 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include <GL/glew.h>
 #include <iostream>
+#include <array>
 
-auto checkEvent(sf::RenderWindow &window)
+constexpr unsigned int wndWidth{800}, wndHeight{450};
+constexpr unsigned int bdWidth{10}, bdHeight{20};
+std::array<std::array<int, bdHeight>, bdWidth> board;
+
+class Manager
 {
-	sf::Event event;
-	while (window.pollEvent(event))
+private:
+
+public:
+
+};
+
+class Game
+{
+private:
+	enum class State 
 	{
-		if (event.type == sf::Event::Closed)
-			window.close();
+		Title,
+		InGame,
+		GameOver
+	};
+	State state{State::Title};
+	sf::RenderWindow window{{wndWidth, wndHeight}, "Tetris?"};
+	sf::Font aileronBlack;
+	sf::Text text;
+
+public:
+	Game()
+	{
+		window.setFramerateLimit(60);
+		aileronBlack.loadFromFile("./Aileron-Black.otf");
+
+		text.setFont(aileronBlack);
+        text.setPosition(10, 10);
+        text.setCharacterSize(35.f);
+        text.setColor(sf::Color::White);
+        text.setString("Tetris");
 	}
-	window.clear();
-	window.display();
-}
+	auto run()
+	{
+		while (true)
+		{
+			window.clear(sf::Color::Black);
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) 
+			{
+				break;
+			}
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Return))
+			{
+				state = State::InGame;
+			}
+
+			if (state == State::Title)
+			{
+				text.setString("Tetris with SFML & C++11/14\nBy Stefan Alexander");
+				window.draw(text);
+			}
+			else if (state == State::GameOver)
+			{
+				text.setString("GameOver");
+				window.draw(text);
+			}
+			else
+			{
+				text.setString("InGame");
+				window.draw(text);
+			}
+
+			window.display();
+		}
+	}
+};
 
 auto main() -> int
 {
-	sf::RenderWindow window(sf::VideoMode(800, 600), "OpenGL", sf::Style::Close);
-
-	// Glew test.
-	// glewExperimental = GL_TRUE;
-	// glewInit();
-	// GLuint vertexBuffer;
-	// glGenBuffers(1, &vertexBuffer);
-	// std::cout << "vertexBuffer: " << vertexBuffer << std::endl;
-
-	while (window.isOpen())
-	{
-		checkEvent(window);
-	}
+	Game game;
+	game.run();
 	return 0;
 }
