@@ -4,9 +4,10 @@
 #include <array>
 #include <random>
 #include <utility>
+#include <cmath>
 
-constexpr unsigned int wndWidth{800}, wndHeight{450};
-constexpr unsigned int bdWidth{10}, bdHeight{20};
+constexpr int wndWidth{800}, wndHeight{450};
+constexpr int bdWidth{10}, bdHeight{20};
 std::array<std::array<int, bdWidth>, bdHeight> board{{}};
 
 using blockcoord = std::array<std::pair<int, int>, 3>;
@@ -23,6 +24,8 @@ constexpr std::array<blockcoord, 8> blocks = {{
 }}; 
 
 auto placeBlock(blockcoord bl, int x, int y) -> void;
+auto drawBackground(sf::RenderWindow& wnd) -> void;
+auto drawBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, int x, int y) -> void;
 
 class Block
 {
@@ -65,7 +68,7 @@ private:
 		GameOver
 	};
 	State state{State::Title};
-	sf::RenderWindow window{{wndWidth, wndHeight}, "Tetris?"};
+	sf::RenderWindow window{{wndWidth, wndHeight}, "SFML Tetris"};
 	sf::Font aileronBlack;
 	sf::Text text;
 
@@ -114,7 +117,7 @@ public:
 
 			if (state == State::Title)
 			{
-				text.setString("Tetris with SFML & C++11/14\nBy Stefan Alexander");
+				text.setString("SFML Tetris\nStefan Alexander");
 				window.draw(text);
 			}
 			else if (state == State::GameOver)
@@ -141,13 +144,51 @@ public:
 					std::cout << "Right" << std::endl;
 				}
 				text.setString("InGame");
-				window.draw(text);
+				drawBackground(window);
 			}
-
 			window.display();
 		}
 	}
 };
+
+auto drawBackground(sf::RenderWindow& wnd) -> void
+{
+	sf::Color gray(128, 128, 128);
+	auto midx = floor(bdWidth/2);
+	for (auto x = 0; x < bdWidth+2; ++x)
+	{
+		for (auto y = 0; y < bdHeight+2; ++y)
+		{
+			if (y == 0 && (x >= midx - 2 && x <= midx + 3))
+			{
+				drawBlock(wnd, sf::Color::Black, sf::Color::Black, x, y);
+			}
+			else if (x == 0 || x == bdWidth+1 || y == 0 || y == bdHeight+1)
+			{
+
+				drawBlock(wnd, gray, sf::Color::Black, x, y);
+			}
+			else
+			{
+				drawBlock(wnd, sf::Color::White, gray, x, y);
+			}
+		}
+	}
+}
+
+auto drawBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, int x, int y) -> void
+{
+	auto blockx = (wndWidth/3.f)/(bdWidth+2.f);
+	auto blocky = wndHeight/(bdHeight+2.f);
+	sf::RectangleShape shape;
+	shape.setPosition((wndWidth/3.f)+(x*blockx)+(blockx/2.f), (y*blocky)+(blocky/2.f));
+	shape.setSize({blockx, blocky});
+	shape.setFillColor(color);
+	shape.setOutlineColor(border);
+	shape.setOutlineThickness(-1.f);
+	shape.setOrigin(blockx/2.f, blocky/2.f);
+	wnd.draw(shape);
+}
 
 auto placeBlock(blockcoord bl, int x, int y) -> void
 {
