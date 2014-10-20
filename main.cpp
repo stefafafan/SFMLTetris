@@ -23,20 +23,16 @@ constexpr std::array<blockcoord, 8> blocks = {{
 	{{ std::make_pair(-1, 0 ), std::make_pair( 0, 1 ), std::make_pair( 1, 0 ) }}	// T-Tetrimino
 }}; 
 
-auto placeBlock(blockcoord bl, int x, int y) -> void;
-auto drawBackground(sf::RenderWindow& wnd) -> void;
-auto drawBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, int x, int y) -> void;
-
 class Block
 {
 private:
-	unsigned int x;
-	unsigned int y;
 	unsigned int type;
 
 public:
+	float x;
+	float y;
 	blockcoord coordinates;
-	Block():x(0), y(0)
+	Block():x(floor(bdWidth/2)), y(0)
 	{
 		std::cout << "New Block: (" << x << ", " << y << ")" << std::endl;
 		generateBlock();
@@ -56,7 +52,29 @@ public:
 		std::cout << coordinates.at(1).first << " " << coordinates.at(1).second << std::endl;
 		std::cout << coordinates.at(2).first << " " << coordinates.at(2).second << std::endl;
 	}
+	auto right() -> int
+	{
+		return coordinates.at(2).first;
+	}
+	auto left() -> int
+	{
+		return coordinates.at(0).first;
+	}
+	auto top() -> int
+	{
+		return 0;
+	}
+	auto bottom() -> int
+	{
+		return (type == 1) ? -1 : 0;
+	}
 };
+
+auto placeBlock(blockcoord bl, int x, int y) -> void;
+auto drawBackground(sf::RenderWindow& wnd) -> void;
+auto drawSingleBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, float x, float y) -> void;
+auto drawBlock(sf::RenderWindow& wnd, sf::Color color, blockcoord bl, float x, float y) -> void;
+auto moveBlock(Block& bl, int x, int y) -> void;
 
 class Game
 {
@@ -84,9 +102,6 @@ public:
 		text.setColor(sf::Color::White);
 		text.setString("Tetris");
 
-		Block block;
-		placeBlock(block.coordinates, 1, bdWidth/2 - 1);
-
 		std::cout << "Board: " << std::endl;
 
 		for (unsigned int i = 0; i < bdHeight; ++i)
@@ -101,6 +116,7 @@ public:
 	}
 	auto run()
 	{
+		Block block;
 		while (true)
 		{
 			window.clear(sf::Color::Black);
@@ -130,21 +146,30 @@ public:
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
 				{
 					std::cout << "Up" << std::endl;
+					// block.y -= 0.3;
+					moveBlock(block, 0, -1);
 				}
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
 				{
 					std::cout << "Down" << std::endl;
+					// block.y += 0.3;
+					moveBlock(block, 0, 1);
 				}
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
 				{
 					std::cout << "Left" << std::endl;
+					// block.x -= 0.3;
+					moveBlock(block, -1, 0);
 				}
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
 				{
 					std::cout << "Right" << std::endl;
+					// block.x += 0.3;
+					moveBlock(block, 1, 0);
 				}
 				text.setString("InGame");
 				drawBackground(window);
+				drawBlock(window, sf::Color::Blue, block.coordinates, floor(block.x), floor(block.y));
 			}
 			window.display();
 		}
@@ -161,22 +186,22 @@ auto drawBackground(sf::RenderWindow& wnd) -> void
 		{
 			if (y == 0 && (x >= midx - 2 && x <= midx + 3))
 			{
-				drawBlock(wnd, sf::Color::Black, sf::Color::Black, x, y);
+				drawSingleBlock(wnd, sf::Color::Black, sf::Color::Black, x, y);
 			}
 			else if (x == 0 || x == bdWidth+1 || y == 0 || y == bdHeight+1)
 			{
 
-				drawBlock(wnd, gray, sf::Color::Black, x, y);
+				drawSingleBlock(wnd, gray, sf::Color::Black, x, y);
 			}
 			else
 			{
-				drawBlock(wnd, sf::Color::White, gray, x, y);
+				drawSingleBlock(wnd, sf::Color::White, gray, x, y);
 			}
 		}
 	}
 }
 
-auto drawBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, int x, int y) -> void
+auto drawSingleBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, float x, float y) -> void
 {
 	auto blockx = (wndWidth/3.f)/(bdWidth+2.f);
 	auto blocky = wndHeight/(bdHeight+2.f);
@@ -188,6 +213,32 @@ auto drawBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, int x, 
 	shape.setOutlineThickness(-1.f);
 	shape.setOrigin(blockx/2.f, blocky/2.f);
 	wnd.draw(shape);
+}
+
+auto drawBlock(sf::RenderWindow& wnd, sf::Color color, blockcoord bl, float x, float y) -> void
+{
+	drawSingleBlock(wnd, color, sf::Color::Black, x, y);
+	for (auto coord : bl)
+	{
+		auto newx = x+coord.first;
+		auto newy = y+coord.second;
+		if (newx >= 0 && newy >= 0)
+		{
+			drawSingleBlock(wnd, color, sf::Color::Black, newx, newy);
+		}
+	}
+}
+
+auto moveBlock(Block& bl, int x, int y) -> void
+{
+	if ((bl.left() + bl.x + x >= 1) && (bl.right() + bl.x + x <= bdWidth+1))
+	{
+		bl.x += (x * 0.3);
+	}
+	if ((bl.top() + bl.y + y >= 1) && (bl.bottom() + bl.y + y <= bdHeight))
+	{
+		bl.y += (y * 0.3);
+	}
 }
 
 auto placeBlock(blockcoord bl, int x, int y) -> void
