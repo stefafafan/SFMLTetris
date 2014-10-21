@@ -10,18 +10,27 @@ constexpr int wndWidth{800}, wndHeight{450};
 constexpr int bdWidth{10}, bdHeight{20};
 std::array<std::array<int, bdWidth>, bdHeight> board{{}};
 
-using blockcoord = std::array<std::pair<int, int>, 3>;
+using blockcoord = std::array<std::pair<int, int>, 4>;
 
-constexpr std::array<blockcoord, 8> blocks = {{
-	{{ std::make_pair( 0, 0 ), std::make_pair( 0, 0 ), std::make_pair( 0, 0 ) }},	// Null
-	{{ std::make_pair(-1, 0 ), std::make_pair( 1, 0 ), std::make_pair( 2, 0 ) }},	// I-Tetrimino
-	{{ std::make_pair( 0, 1 ), std::make_pair( 1, 0 ), std::make_pair( 1, 1 ) }},	// O-Tetrimino
-	{{ std::make_pair(-1, 0 ), std::make_pair( 0, 1 ), std::make_pair( 1, 1 ) }},	// S-Tetrimino
-	{{ std::make_pair(-1, 1 ), std::make_pair( 0, 1 ), std::make_pair( 1, 0 ) }},	// Z-Tetrimino
-	{{ std::make_pair(-1, 1 ), std::make_pair(-1, 0 ), std::make_pair( 1, 0 ) }},	// L-Tetrimino
-	{{ std::make_pair(-1, 0 ), std::make_pair( 1, 0 ), std::make_pair( 1, 1 ) }},	// J-Tetrimino
-	{{ std::make_pair(-1, 0 ), std::make_pair( 0, 1 ), std::make_pair( 1, 0 ) }}	// T-Tetrimino
-}}; 
+constexpr std::array<blockcoord, 7> blocks = {{
+	{{ std::make_pair(-1, 0 ), std::make_pair( 0, 0 ), std::make_pair( 1, 0 ), std::make_pair( 2, 0 ) }},	// I-Tetrimino
+	{{ std::make_pair( 0, 1 ), std::make_pair( 0, 0 ), std::make_pair( 1, 0 ), std::make_pair( 1, 1 ) }},	// O-Tetrimino
+	{{ std::make_pair(-1, 0 ), std::make_pair( 0, 0 ), std::make_pair( 0, 1 ), std::make_pair( 1, 1 ) }},	// S-Tetrimino
+	{{ std::make_pair(-1, 1 ), std::make_pair( 0, 0 ), std::make_pair( 0, 1 ), std::make_pair( 1, 0 ) }},	// Z-Tetrimino
+	{{ std::make_pair(-1, 1 ), std::make_pair( 0, 0 ), std::make_pair(-1, 0 ), std::make_pair( 1, 0 ) }},	// L-Tetrimino
+	{{ std::make_pair(-1, 0 ), std::make_pair( 0, 0 ), std::make_pair( 1, 0 ), std::make_pair( 1, 1 ) }},	// J-Tetrimino
+	{{ std::make_pair(-1, 0 ), std::make_pair( 0, 0 ), std::make_pair( 0, 1 ), std::make_pair( 1, 0 ) }}	// T-Tetrimino
+}};
+
+std::array<sf::Color, 7> blockcolors = {{
+	sf::Color(255, 0, 0),		// Red
+	sf::Color(255, 240, 0),		// Yellow
+	sf::Color(200, 30, 140),	// Purple
+	sf::Color(50, 200, 50),		// Green
+	sf::Color(255, 128, 0),		// Orange
+	sf::Color(0, 0, 255),		// Blue
+	sf::Color(0, 255, 255)		// Light Blue
+}};
 
 class Block
 {
@@ -41,7 +50,7 @@ public:
 	{
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::uniform_int_distribution<int> dis(1, 6);
+		std::uniform_int_distribution<int> dis(0, 6);
 		type = dis(gen);
 
 		std::cout << "Block Type: " << type << std::endl;
@@ -68,13 +77,18 @@ public:
 	{
 		return (type == 1) ? -1 : 0;
 	}
+	auto getColor() -> sf::Color
+	{
+		return blockcolors.at(type);
+	}
 };
 
 auto placeBlock(blockcoord bl, int x, int y) -> void;
 auto drawBackground(sf::RenderWindow& wnd) -> void;
 auto drawSingleBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, float x, float y) -> void;
-auto drawBlock(sf::RenderWindow& wnd, sf::Color color, blockcoord bl, float x, float y) -> void;
+auto drawBlock(sf::RenderWindow& wnd, Block bl, float x, float y) -> void;
 auto moveBlock(Block& bl, int x, int y) -> void;
+auto rotateBlock(Block& bl) -> void;
 
 class Game
 {
@@ -89,10 +103,12 @@ private:
 	sf::RenderWindow window{{wndWidth, wndHeight}, "SFML Tetris"};
 	sf::Font aileronBlack;
 	sf::Text text;
+	unsigned int step;
 
 public:
 	Game()
 	{
+		step = 0;
 		window.setFramerateLimit(60);
 		aileronBlack.loadFromFile("./Aileron-Black.otf");
 
@@ -117,7 +133,7 @@ public:
 	auto run()
 	{
 		Block block;
-		while (true)
+		for (;;++step)
 		{
 			window.clear(sf::Color::Black);
 
@@ -145,31 +161,25 @@ public:
 			{
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
 				{
-					std::cout << "Up" << std::endl;
-					// block.y -= 0.3;
-					moveBlock(block, 0, -1);
+					if (step % 5 == 0)
+					{
+						rotateBlock(block);
+					}
 				}
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
 				{
-					std::cout << "Down" << std::endl;
-					// block.y += 0.3;
 					moveBlock(block, 0, 1);
 				}
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
 				{
-					std::cout << "Left" << std::endl;
-					// block.x -= 0.3;
 					moveBlock(block, -1, 0);
 				}
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
 				{
-					std::cout << "Right" << std::endl;
-					// block.x += 0.3;
 					moveBlock(block, 1, 0);
 				}
-				text.setString("InGame");
 				drawBackground(window);
-				drawBlock(window, sf::Color::Blue, block.coordinates, floor(block.x), floor(block.y));
+				drawBlock(window, block, floor(block.x), floor(block.y));
 			}
 			window.display();
 		}
@@ -215,16 +225,15 @@ auto drawSingleBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, f
 	wnd.draw(shape);
 }
 
-auto drawBlock(sf::RenderWindow& wnd, sf::Color color, blockcoord bl, float x, float y) -> void
+auto drawBlock(sf::RenderWindow& wnd, Block bl, float x, float y) -> void
 {
-	drawSingleBlock(wnd, color, sf::Color::Black, x, y);
-	for (auto coord : bl)
+	for (auto coord : bl.coordinates)
 	{
 		auto newx = x+coord.first;
 		auto newy = y+coord.second;
 		if (newx >= 0 && newy >= 0)
 		{
-			drawSingleBlock(wnd, color, sf::Color::Black, newx, newy);
+			drawSingleBlock(wnd, bl.getColor(), sf::Color::Black, newx, newy);
 		}
 	}
 }
@@ -238,6 +247,17 @@ auto moveBlock(Block& bl, int x, int y) -> void
 	if ((bl.top() + bl.y + y >= 1) && (bl.bottom() + bl.y + y <= bdHeight))
 	{
 		bl.y += (y * 0.3);
+	}
+}
+
+auto rotateBlock(Block& bl) -> void
+{
+	for (auto &coord : bl.coordinates)
+	{
+		auto tempx = coord.first;
+		auto tempy = coord.second;
+		coord.first = tempy;
+		coord.second = 1-tempx;
 	}
 }
 
