@@ -1,5 +1,6 @@
 #include "Block.hpp"
 #include <random>
+#include <algorithm>
 
 auto Block::generateBlock() -> void
 {
@@ -10,9 +11,33 @@ auto Block::generateBlock() -> void
 	coordinates = blocks.at(type);
 }
 
+auto Block::right() -> int
+{
+	auto max = (*std::max_element(coordinates.begin(), coordinates.end(), [](auto c1, auto c2){ return c1.first < c2.first; })).first;
+	return max;
+}
+
+auto Block::left() -> int
+{
+	auto min = (*std::min_element(coordinates.begin(), coordinates.end(), [](auto c1, auto c2){ return c1.first < c2.first; })).first;
+	return min;
+}
+
+auto Block::top() -> int
+{
+	auto min = (*std::min_element(coordinates.begin(), coordinates.end(), [](auto c1, auto c2){ return c1.second < c2.second; })).second;
+	return min;
+}
+
+auto Block::bottom() -> int
+{
+	auto max = (*std::max_element(coordinates.begin(), coordinates.end(), [](auto c1, auto c2){ return c1.second < c2.second; })).second;
+	return max;
+}
+
 auto Block::move(int incx, int incy) -> void
 {
-	if ((left() + x + incx >= 1) && (right() + x + incx <= bdWidth+1))
+	if ((left() + x + incx >= 1) && (right() + x + incx <= bdWidth))
 	{
 		x += incx;
 	}

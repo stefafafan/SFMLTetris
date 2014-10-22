@@ -30,22 +30,10 @@ public:
 	}
 	auto generateBlock() -> void;
 
-	auto right() -> int
-	{
-		return coordinates.at(2).first;
-	}
-	auto left() -> int
-	{
-		return coordinates.at(0).first;
-	}
-	auto top() -> int
-	{
-		return 0;
-	}
-	auto bottom() -> int
-	{
-		return (type == 1) ? -1 : 0;
-	}
+	auto right() -> int;
+	auto left() -> int;
+	auto top() -> int;
+	auto bottom() -> int;
 	auto getColor() -> sf::Color { return blockcolors.at(type); }
 	auto move(int incx, int incy) -> void;
 	auto rotate() -> void;
