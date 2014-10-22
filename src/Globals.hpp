@@ -1,6 +1,10 @@
 #ifndef GLOBALS_HPP
 #define GLOBALS_HPP
 
+#include <array>
+#include <SFML/Graphics.hpp>
+#include <utility>
+
 using blockcoord = std::array<std::pair<int, int>, 4>;
 
 namespace constants
@@ -31,5 +35,7 @@ namespace constants
 		sf::Color(0, 0, 0)          // 9. Black         Opening
 	}};
 }
+
+extern std::array<std::array<int, constants::bdWidth+2>, constants::bdHeight+2> board;
 
 #endif
