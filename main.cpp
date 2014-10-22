@@ -87,7 +87,7 @@ auto placeBlock(blockcoord bl, int x, int y) -> void;
 auto drawBackground(sf::RenderWindow& wnd) -> void;
 auto drawSingleBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, float x, float y) -> void;
 auto drawBlock(sf::RenderWindow& wnd, Block bl, float x, float y) -> void;
-auto moveBlock(Block& bl, int x, int y) -> void;
+auto moveBlock(Block& bl, float x, float y) -> void;
 auto rotateBlock(Block& bl) -> void;
 
 class Game
@@ -159,6 +159,7 @@ public:
 			}
 			else
 			{
+				moveBlock(block, 0, 0.1);
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
 				{
 					if (step % 5 == 0)
@@ -238,15 +239,15 @@ auto drawBlock(sf::RenderWindow& wnd, Block bl, float x, float y) -> void
 	}
 }
 
-auto moveBlock(Block& bl, int x, int y) -> void
+auto moveBlock(Block& bl, float x, float y) -> void
 {
 	if ((bl.left() + bl.x + x >= 1) && (bl.right() + bl.x + x <= bdWidth+1))
 	{
-		bl.x += (x * 0.3);
+		bl.x += (x/3);
 	}
-	if ((bl.top() + bl.y + y >= 1) && (bl.bottom() + bl.y + y <= bdHeight))
+	if ((bl.top() + bl.y + y >= 0) && (bl.bottom() + bl.y + y <= bdHeight))
 	{
-		bl.y += (y * 0.3);
+		bl.y += (y/3);
 	}
 }
 
