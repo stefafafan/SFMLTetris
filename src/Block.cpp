@@ -8,7 +8,7 @@ auto Block::generateBlock() -> void
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<int> dis(0, 6);
 	type = dis(gen);
-	coordinates = blocks.at(type);
+	coordinates = constants::blocks.at(type);
 }
 
 auto Block::right() -> int
@@ -37,11 +37,11 @@ auto Block::bottom() -> int
 
 auto Block::move(int incx, int incy) -> void
 {
-	if ((left() + x + incx >= 1) && (right() + x + incx <= bdWidth))
+	if ((left() + x + incx >= 1) && (right() + x + incx <= constants::bdWidth))
 	{
 		x += incx;
 	}
-	if ((top() + y + incy >= 0) && (bottom() + y + incy <= bdHeight))
+	if ((top() + y + incy >= 0) && (bottom() + y + incy <= constants::bdHeight))
 	{
 		y += incy;
 	}

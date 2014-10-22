@@ -3,38 +3,30 @@
 
 #include "Entity.hpp"
 #include "Helpers.hpp"
+#include "Globals.hpp"
 #include <iostream>
 #include <array>
 
 class Block : public Entity
 {
 private:
-	unsigned int type;
-	std::array<sf::Color, 7> blockcolors = {{
-		sf::Color(255, 0, 0),		// Red
-		sf::Color(255, 240, 0),		// Yellow
-		sf::Color(200, 30, 140),	// Purple
-		sf::Color(50, 200, 50),		// Green
-		sf::Color(255, 128, 0),		// Orange
-		sf::Color(0, 0, 255),		// Blue
-		sf::Color(0, 255, 255)		// Light Blue
-	}};
-
-public:
 	float x;
 	float y;
 	blockcoord coordinates;
-	Block():x(floor(bdWidth/2)), y(0)
-	{
-		generateBlock();
-	}
-	auto generateBlock() -> void;
+	unsigned int type;
 
+public:
+	Block():x(floor(constants::bdWidth/2)), y(0) { generateBlock(); }
+	
+	auto generateBlock() -> void;
+	
 	auto right() -> int;
 	auto left() -> int;
 	auto top() -> int;
 	auto bottom() -> int;
-	auto getColor() -> sf::Color { return blockcolors.at(type); }
+	
+	auto getColor() -> sf::Color { return constants::blockcolors.at(type); }
+	
 	auto move(int incx, int incy) -> void;
 	auto rotate() -> void;
 
