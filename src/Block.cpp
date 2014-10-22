@@ -38,14 +38,17 @@ auto Block::bottom() -> int
 auto Block::move(int incx, int incy) -> bool
 {
 	auto canMove = false;
-	if ((left() + x + incx >= 1) && (right() + x + incx <= constants::bdWidth))
+	x += incx;
+	if (isColliding())
 	{
-		x += incx;
+		x -= incx;
 	}
-	if ((top() + y + incy >= 0) && (bottom() + y + incy <= constants::bdHeight))
+	y += incy;
+	canMove = true;
+	if (isColliding())
 	{
-		y += incy;
-		canMove = true;
+		y -= incy;
+		canMove = false;
 	}
 	return canMove;
 }
@@ -59,6 +62,16 @@ auto Block::rotate() -> void
 		coord.first = tempy;
 		coord.second = 1-tempx;
 	}
+	if (isColliding())
+	{
+		for (auto &coord : coordinates)
+		{
+			auto tempx = coord.first;
+			auto tempy = coord.second;
+			coord.first = 1-tempy;
+			coord.second = tempx;
+		}
+	}
 }
 
 auto Block::placeBoard() -> void
@@ -68,4 +81,22 @@ auto Block::placeBoard() -> void
 		// std::cout << coord.first + x << ", " << coord.second + y << std::endl;
 		board.at(coord.second+y).at(coord.first+x) = type;
 	}
+}
+
+auto Block::isColliding() -> bool
+{
+	auto colliding = false;
+	for (auto coord : coordinates)
+	{
+		switch (board.at(coord.second+y).at(coord.first+x))
+		{
+			case 7:
+			case 9:
+				break;
+			default:
+				colliding = true;
+				break;
+		}
+	}
+	return colliding;
 }

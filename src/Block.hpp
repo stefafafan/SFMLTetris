@@ -4,8 +4,6 @@
 #include "Entity.hpp"
 #include "Helpers.hpp"
 #include "Globals.hpp"
-#include <iostream>
-#include <array>
 
 class Block : public Entity
 {
@@ -31,6 +29,8 @@ public:
 	auto rotate() -> void;
 
 	auto placeBoard() -> void;
+
+	auto isColliding() -> bool;
 
 	auto draw(sf::RenderWindow& wnd) -> void override 
 	{

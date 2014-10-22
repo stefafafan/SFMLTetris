@@ -1,6 +1,4 @@
-#include <SFML/Window.hpp>
 #include <iostream>
-#include <cmath>
 #include <memory>
 #include "Block.hpp"
 #include "Helpers.hpp"
@@ -34,18 +32,6 @@ public:
 		text.setString("Tetris");
 
 		setupBackground();
-
-		std::cout << "Board: " << std::endl;
-
-		for (unsigned int i = 0; i < constants::bdHeight+2; ++i)
-		{
-			for (unsigned int j = 0; j < constants::bdWidth+2; ++j)
-			{
-				std::cout << board.at(i).at(j) << " ";
-			}
-			std::cout << std::endl;
-		}
-		
 	}
 	auto run()
 	{
@@ -85,24 +71,22 @@ public:
 				}
 				if (blockMoving)
 				{
-					if (step % 5 == 0)
+
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
 					{
-						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
-						{
-								block->rotate();
-						}
-						else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
-						{
-								block->move(0, 1);
-						}
-						else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
-						{
-								block->move(-1, 0);
-						}
-						else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
-						{
-								block->move(1, 0);
-						}
+						block->rotate();
+					}
+					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
+					{
+						block->move(0, 1);
+					}
+					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
+					{
+						block->move(-1, 0);
+					}
+					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
+					{
+						block->move(1, 0);
 					}
 				}
 				else if (moved)
