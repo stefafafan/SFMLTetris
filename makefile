@@ -1,7 +1,7 @@
-CC=g++
-CFLAGS=-std=c++1y -c -Wall -Wextra -pedantic
+CC=g++ -std=c++1y
+CFLAGS=-c -Wall -Wextra -pedantic
 LDFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
-SOURCES=main.cpp
+SOURCES=main.cpp Entity.hpp Block.cpp Helpers.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=sfml
 
@@ -14,4 +14,4 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -rf $(OBJECTS) $(EXECUTABLE)
+	rm -rf *.o $(EXECUTABLE)

@@ -1,94 +1,13 @@
 #include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
 #include <iostream>
-#include <array>
-#include <random>
-#include <utility>
 #include <cmath>
+#include "Block.hpp"
+#include "Helpers.hpp"
 
-constexpr int wndWidth{800}, wndHeight{450};
-constexpr int bdWidth{10}, bdHeight{20};
 std::array<std::array<int, bdWidth>, bdHeight> board{{}};
-
-using blockcoord = std::array<std::pair<int, int>, 4>;
-
-constexpr std::array<blockcoord, 7> blocks = {{
-	{{ std::make_pair(-1, 0 ), std::make_pair( 0, 0 ), std::make_pair( 1, 0 ), std::make_pair( 2, 0 ) }},	// I-Tetrimino
-	{{ std::make_pair( 0, 1 ), std::make_pair( 0, 0 ), std::make_pair( 1, 0 ), std::make_pair( 1, 1 ) }},	// O-Tetrimino
-	{{ std::make_pair(-1, 0 ), std::make_pair( 0, 0 ), std::make_pair( 0, 1 ), std::make_pair( 1, 1 ) }},	// S-Tetrimino
-	{{ std::make_pair(-1, 1 ), std::make_pair( 0, 0 ), std::make_pair( 0, 1 ), std::make_pair( 1, 0 ) }},	// Z-Tetrimino
-	{{ std::make_pair(-1, 1 ), std::make_pair( 0, 0 ), std::make_pair(-1, 0 ), std::make_pair( 1, 0 ) }},	// L-Tetrimino
-	{{ std::make_pair(-1, 0 ), std::make_pair( 0, 0 ), std::make_pair( 1, 0 ), std::make_pair( 1, 1 ) }},	// J-Tetrimino
-	{{ std::make_pair(-1, 0 ), std::make_pair( 0, 0 ), std::make_pair( 0, 1 ), std::make_pair( 1, 0 ) }}	// T-Tetrimino
-}};
-
-std::array<sf::Color, 7> blockcolors = {{
-	sf::Color(255, 0, 0),		// Red
-	sf::Color(255, 240, 0),		// Yellow
-	sf::Color(200, 30, 140),	// Purple
-	sf::Color(50, 200, 50),		// Green
-	sf::Color(255, 128, 0),		// Orange
-	sf::Color(0, 0, 255),		// Blue
-	sf::Color(0, 255, 255)		// Light Blue
-}};
-
-class Block
-{
-private:
-	unsigned int type;
-
-public:
-	float x;
-	float y;
-	blockcoord coordinates;
-	Block():x(floor(bdWidth/2)), y(0)
-	{
-		std::cout << "New Block: (" << x << ", " << y << ")" << std::endl;
-		generateBlock();
-	}
-	auto generateBlock() -> void
-	{
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_int_distribution<int> dis(0, 6);
-		type = dis(gen);
-
-		std::cout << "Block Type: " << type << std::endl;
-
-		coordinates = blocks.at(type);
-
-		std::cout << coordinates.at(0).first << " " << coordinates.at(0).second << std::endl;
-		std::cout << coordinates.at(1).first << " " << coordinates.at(1).second << std::endl;
-		std::cout << coordinates.at(2).first << " " << coordinates.at(2).second << std::endl;
-	}
-	auto right() -> int
-	{
-		return coordinates.at(2).first;
-	}
-	auto left() -> int
-	{
-		return coordinates.at(0).first;
-	}
-	auto top() -> int
-	{
-		return 0;
-	}
-	auto bottom() -> int
-	{
-		return (type == 1) ? -1 : 0;
-	}
-	auto getColor() -> sf::Color
-	{
-		return blockcolors.at(type);
-	}
-};
 
 auto placeBlock(blockcoord bl, int x, int y) -> void;
 auto drawBackground(sf::RenderWindow& wnd) -> void;
-auto drawSingleBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, float x, float y) -> void;
-auto drawBlock(sf::RenderWindow& wnd, Block bl, float x, float y) -> void;
-auto moveBlock(Block& bl, float x, float y) -> void;
-auto rotateBlock(Block& bl) -> void;
 
 class Game
 {
@@ -159,28 +78,40 @@ public:
 			}
 			else
 			{
-				moveBlock(block, 0, 0.1);
+				if (step % 10 == 0) {
+					block.move(0, 1);
+				}
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
 				{
 					if (step % 5 == 0)
 					{
-						rotateBlock(block);
+						// rotateBlock(block);
+						block.rotate();
 					}
 				}
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
 				{
-					moveBlock(block, 0, 1);
+					if (step % 5 == 0)
+					{
+						block.move(0, 1);
+					}
 				}
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
 				{
-					moveBlock(block, -1, 0);
+					if (step % 5 == 0)
+					{
+						block.move(-1, 0);
+					}
 				}
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
 				{
-					moveBlock(block, 1, 0);
+					if (step % 5 == 0)
+					{
+						block.move(1, 0);
+					}
 				}
 				drawBackground(window);
-				drawBlock(window, block, floor(block.x), floor(block.y));
+				block.draw(window);
 			}
 			window.display();
 		}
@@ -209,56 +140,6 @@ auto drawBackground(sf::RenderWindow& wnd) -> void
 				drawSingleBlock(wnd, sf::Color::White, gray, x, y);
 			}
 		}
-	}
-}
-
-auto drawSingleBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, float x, float y) -> void
-{
-	auto blockx = (wndWidth/3.f)/(bdWidth+2.f);
-	auto blocky = wndHeight/(bdHeight+2.f);
-	sf::RectangleShape shape;
-	shape.setPosition((wndWidth/3.f)+(x*blockx)+(blockx/2.f), (y*blocky)+(blocky/2.f));
-	shape.setSize({blockx, blocky});
-	shape.setFillColor(color);
-	shape.setOutlineColor(border);
-	shape.setOutlineThickness(-1.f);
-	shape.setOrigin(blockx/2.f, blocky/2.f);
-	wnd.draw(shape);
-}
-
-auto drawBlock(sf::RenderWindow& wnd, Block bl, float x, float y) -> void
-{
-	for (auto coord : bl.coordinates)
-	{
-		auto newx = x+coord.first;
-		auto newy = y+coord.second;
-		if (newx >= 0 && newy >= 0)
-		{
-			drawSingleBlock(wnd, bl.getColor(), sf::Color::Black, newx, newy);
-		}
-	}
-}
-
-auto moveBlock(Block& bl, float x, float y) -> void
-{
-	if ((bl.left() + bl.x + x >= 1) && (bl.right() + bl.x + x <= bdWidth+1))
-	{
-		bl.x += (x/3);
-	}
-	if ((bl.top() + bl.y + y >= 0) && (bl.bottom() + bl.y + y <= bdHeight))
-	{
-		bl.y += (y/3);
-	}
-}
-
-auto rotateBlock(Block& bl) -> void
-{
-	for (auto &coord : bl.coordinates)
-	{
-		auto tempx = coord.first;
-		auto tempy = coord.second;
-		coord.first = tempy;
-		coord.second = 1-tempx;
 	}
 }
 
