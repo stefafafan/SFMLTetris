@@ -129,16 +129,16 @@ auto setupBackground() -> void
 		{
 			if (i == 0 && (midx - 2 <= j && j <= midx + 3))
 			{
-				board.at(i).at(j) = 9;	// Opening at top.
+				board.at(i).at(j) = 9;  // Opening at top.
 			}
 			else if (j == 0 || j == constants::bdWidth+1 || i == 0 || i == constants::bdHeight+1)
 			{
 
-				board.at(i).at(j) = 8;	// Wall.
+				board.at(i).at(j) = 8;  // Wall.
 			}
 			else
 			{
-				board.at(i).at(j) = 7;	// Nothing.
+				board.at(i).at(j) = 7;  // Nothing.
 			}
 		}
 	}

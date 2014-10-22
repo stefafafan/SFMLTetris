@@ -7,7 +7,7 @@ class Entity
 {
 public:
 	virtual ~Entity() { }
-    virtual auto draw(sf::RenderWindow&) -> void { }
+	virtual auto draw(sf::RenderWindow&) -> void { }
 };
 
 #endif
