@@ -6,7 +6,6 @@
 
 std::array<std::array<int, bdWidth>, bdHeight> board{{}};
 
-auto placeBlock(blockcoord bl, int x, int y) -> void;
 auto drawBackground(sf::RenderWindow& wnd) -> void;
 
 class Game
@@ -139,23 +138,6 @@ auto drawBackground(sf::RenderWindow& wnd) -> void
 			{
 				drawSingleBlock(wnd, sf::Color::White, gray, x, y);
 			}
-		}
-	}
-}
-
-auto placeBlock(blockcoord bl, int x, int y) -> void
-{
-	if (x >= 0 && y >= 0)
-	{
-		board.at(x).at(y) = 1;
-	}
-	for (auto coord : bl)
-	{
-		auto newx = x+coord.first;
-		auto newy = y+coord.second;
-		if (newx >= 0 && newy >= 0)
-		{
-			board.at(newx).at(newy) = 1;
 		}
 	}
 }
