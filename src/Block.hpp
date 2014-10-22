@@ -27,8 +27,10 @@ public:
 	
 	auto getColor() -> sf::Color { return constants::blockcolors.at(type); }
 	
-	auto move(int incx, int incy) -> void;
+	auto move(int incx, int incy) -> bool;
 	auto rotate() -> void;
+
+	auto placeBoard() -> void;
 
 	auto draw(sf::RenderWindow& wnd) -> void override 
 	{

@@ -1,6 +1,7 @@
 #include <SFML/Window.hpp>
 #include <iostream>
 #include <cmath>
+#include <memory>
 #include "Block.hpp"
 #include "Helpers.hpp"
 
@@ -48,11 +49,10 @@ public:
 	}
 	auto run()
 	{
-		Block block;
+		std::unique_ptr<Block> block(new Block());
 		for (;;++step)
 		{
 			window.clear(sf::Color::Black);
-
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) 
 			{
 				break;
@@ -75,39 +75,43 @@ public:
 			}
 			else
 			{
-				if (step % 10 == 0) {
-					block.move(0, 1);
+				auto blockMoving = false;
+				auto moved = false;
+				if (step % 10 == 0) 
+				{
+					moved = true;
+					blockMoving = block->move(0, 1);					
+					step = 0;
 				}
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
+				if (blockMoving)
 				{
 					if (step % 5 == 0)
 					{
-						block.rotate();
+						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
+						{
+								block->rotate();
+						}
+						else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
+						{
+								block->move(0, 1);
+						}
+						else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
+						{
+								block->move(-1, 0);
+						}
+						else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
+						{
+								block->move(1, 0);
+						}
 					}
 				}
-				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
+				else if (moved)
 				{
-					if (step % 5 == 0)
-					{
-						block.move(0, 1);
-					}
-				}
-				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
-				{
-					if (step % 5 == 0)
-					{
-						block.move(-1, 0);
-					}
-				}
-				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
-				{
-					if (step % 5 == 0)
-					{
-						block.move(1, 0);
-					}
+					block->placeBoard();
+					block.reset(new Block());
 				}
 				drawBackground(window);
-				block.draw(window);
+				block->draw(window);
 			}
 			window.display();
 		}

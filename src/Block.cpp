@@ -35,8 +35,9 @@ auto Block::bottom() -> int
 	return max;
 }
 
-auto Block::move(int incx, int incy) -> void
+auto Block::move(int incx, int incy) -> bool
 {
+	auto canMove = false;
 	if ((left() + x + incx >= 1) && (right() + x + incx <= constants::bdWidth))
 	{
 		x += incx;
@@ -44,7 +45,9 @@ auto Block::move(int incx, int incy) -> void
 	if ((top() + y + incy >= 0) && (bottom() + y + incy <= constants::bdHeight))
 	{
 		y += incy;
+		canMove = true;
 	}
+	return canMove;
 }
 
 auto Block::rotate() -> void
@@ -55,5 +58,14 @@ auto Block::rotate() -> void
 		auto tempy = coord.second;
 		coord.first = tempy;
 		coord.second = 1-tempx;
+	}
+}
+
+auto Block::placeBoard() -> void
+{
+	for (auto coord : coordinates)
+	{
+		// std::cout << coord.first + x << ", " << coord.second + y << std::endl;
+		board.at(coord.second+y).at(coord.first+x) = type;
 	}
 }
