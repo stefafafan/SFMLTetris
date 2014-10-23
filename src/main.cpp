@@ -61,22 +61,9 @@ public:
 			}
 			else
 			{
-				auto blockMoving = false;
-				auto moved = false;
-				if (step % 10 == 0) 
+				if (step % 4 == 0)
 				{
-					moved = true;
-					blockMoving = block->move(0, 1);					
-					step = 0;
-				}
-				if (blockMoving)
-				{
-
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
-					{
-						block->rotate();
-					}
-					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
 					{
 						block->move(0, 1);
 					}
@@ -89,10 +76,26 @@ public:
 						block->move(1, 0);
 					}
 				}
-				else if (moved)
+				if (step % 7 == 0)
+				{
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
+					{
+						block->rotate();
+					}
+				}
+				auto blockMoving = false;
+				auto moved = false;
+				if (step % 10 == 0) 
+				{
+					moved = true;
+					blockMoving = block->move(0, 1);
+				}
+				if (moved && !blockMoving)
 				{
 					block->placeBoard();
+					checkLines();
 					block.reset(new Block());
+					step = 0;
 				}
 				drawBackground(window);
 				block->draw(window);

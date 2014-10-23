@@ -1,5 +1,6 @@
 #include "Helpers.hpp"
 #include "Globals.hpp"
+#include <iostream>
 
 auto drawSingleBlock(sf::RenderWindow& wnd, sf::Color color, sf::Color border, float x, float y) -> void
 {
@@ -47,6 +48,38 @@ auto drawBackground(sf::RenderWindow& wnd) -> void
 		for (unsigned int j = 0; j < board.at(i).size(); ++j)
 		{
 			drawSingleBlock(wnd, constants::blockcolors.at(board.at(i).at(j)), sf::Color::Black, j, i);
+		}
+	}
+}
+
+auto checkLines() -> void
+{
+	for (unsigned int i = 1; i < board.size()-1; ++i)
+	{
+		auto isFull = true;
+		for (unsigned int j = 1; j < board.at(i).size()-1; ++j)
+		{
+			auto blockvalue = board.at(i).at(j);
+			if (blockvalue == 7)
+			{
+				isFull = false;
+				break;
+			}
+		}
+		if (isFull)
+		{
+			deleteLine(i);
+		}
+	}
+}
+
+auto deleteLine(int linenum) -> void
+{
+	for (unsigned int i = linenum; i >= 2; --i)
+	{
+		for (unsigned int j = 0; j < board.at(i).size(); ++j)
+		{
+			board.at(i).at(j) = board.at(i-1).at(j);
 		}
 	}
 }
