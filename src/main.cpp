@@ -77,24 +77,32 @@ public:
 				{
 					if (step % 4 == 0)
 					{
+						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+						{
+							block->drop();
+						}
 						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
 						{
 							block->move(0, 1);
 						}
-						else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
+						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
 						{
 							block->move(-1, 0);
 						}
-						else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
+						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
 						{
 							block->move(1, 0);
 						}
 					}
 					if (step % 7 == 0)
 					{
-						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
+						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z)) 
 						{
-							block->rotate();
+							block->rotate(true);
+						}
+						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
+						{
+							block->rotate(false);
 						}
 					}
 					auto blockMoving = false;
@@ -130,8 +138,11 @@ public:
 					next.draw(window);
 					offset += 4;
 				}
-				
 				block->draw(window);
+				Block ghost = *block;
+				ghost.setGhost(true);
+				ghost.drop();
+				ghost.draw(window);
 			}
 			window.display();
 		}

@@ -12,14 +12,15 @@ private:
 	float y;
 	blockcoord coordinates;
 	unsigned int type;
+	bool isGhost;
 
 public:
-	Block(unsigned int t):x(floor(constants::bdWidth/2)), y(0), type(t)
-	{ //generateBlock(); 
+	Block(unsigned int t):x(floor(constants::bdWidth/2)), y(0), type(t), isGhost(false)
+	{
 		coordinates = constants::blocks.at(type);
 	}
 	
-	//auto generateBlock() -> void;
+	auto setGhost(bool flag) -> void;
 	
 	auto right() -> int;
 	auto left() -> int;
@@ -29,20 +30,25 @@ public:
 	auto getColor() -> sf::Color { return constants::blockcolors.at(type); }
 	
 	auto move(int incx, int incy) -> bool;
-	auto rotate() -> void;
+	auto drop() -> void;
+	auto rotate(bool reverse) -> void;
 
 	auto placeBoard() -> void;
 	auto isColliding() -> bool;
 
 	auto placeScreen(int newx, int newy) -> void;
-
 	auto isOverflow() -> bool;
 
 	auto draw(sf::RenderWindow& wnd) -> void override 
 	{
+		auto color = getColor();
+		if (isGhost)
+		{
+			color.a = 128;
+		}
 		for (auto coord : coordinates)
 		{
-			drawSingleBlock(wnd, getColor(), sf::Color::Black, coord.first+x, coord.second+y);
+			drawSingleBlock(wnd, color, sf::Color::Black, coord.first+x, coord.second+y);
 		}
 	}
 };

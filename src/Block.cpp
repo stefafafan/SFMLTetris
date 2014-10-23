@@ -2,14 +2,10 @@
 #include <random>
 #include <algorithm>
 
-// auto Block::generateBlock() -> void
-// {
-	// std::random_device rd;
-	// std::mt19937 gen(rd());
-	// std::uniform_int_distribution<int> dis(0, 6);
-// 	type = dis(gen);
-// 	coordinates = constants::blocks.at(type);
-// }
+auto Block::setGhost(bool flag) -> void
+{
+	isGhost = flag;
+}
 
 auto Block::right() -> int
 {
@@ -53,14 +49,36 @@ auto Block::move(int incx, int incy) -> bool
 	return canMove;
 }
 
-auto Block::rotate() -> void
+auto Block::drop() -> void
+{
+	auto canMove = true;
+	while (canMove)
+	{
+		y += 1;
+		if (isColliding())
+		{
+			y -= 1;
+			canMove = false;
+		}
+	}
+}
+
+auto Block::rotate(bool reverse) -> void
 {
 	for (auto &coord : coordinates)
 	{
 		auto tempx = coord.first;
 		auto tempy = coord.second;
-		coord.first = tempy;
-		coord.second = 1-tempx;
+		if (reverse)
+		{
+			coord.first = 1-tempy;
+			coord.second = tempx;	
+		}
+		else
+		{
+			coord.first = tempy;
+			coord.second = 1-tempx;
+		}
 	}
 	if (isColliding())
 	{
@@ -68,8 +86,16 @@ auto Block::rotate() -> void
 		{
 			auto tempx = coord.first;
 			auto tempy = coord.second;
-			coord.first = 1-tempy;
-			coord.second = tempx;
+			if (reverse)
+			{
+				coord.first = tempy;
+				coord.second = 1-tempx;	
+			}
+		else
+			{
+				coord.first = 1-tempy;
+				coord.second = tempx;
+			}
 		}
 	}
 }
@@ -87,14 +113,21 @@ auto Block::isColliding() -> bool
 	auto colliding = false;
 	for (auto coord : coordinates)
 	{
-		switch (board.at(coord.second+y).at(coord.first+x))
+		if (coord.second+y < 0 || coord.first+x < 0)
 		{
-			case 7:
-			case 9:
-				break;
-			default:
-				colliding = true;
-				break;
+			colliding = true;
+		}
+		else
+		{
+			switch (board.at(coord.second+y).at(coord.first+x))
+			{
+				case 7:
+				case 9:
+					break;
+				default:
+					colliding = true;
+					break;
+			}
 		}
 	}
 	return colliding;
