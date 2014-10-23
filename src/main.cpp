@@ -11,7 +11,6 @@ class Game
 private:
 	enum class State 
 	{
-		Title,
 		InGame,
 		GameOver
 	};
@@ -77,137 +76,126 @@ public:
 				block.reset(new Block(dis(gen)));
 				holdtype = -1;
 				canSwap = true;
+				linecount = 0;
 				state = State::InGame;
 			}
 
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Return))
-			{
-				state = State::InGame;
-			}
 
-			if (state == State::Title)
+			nextText.setString("Next:");
+			window.draw(nextText);
+			holdText.setString("Hold:");
+			window.draw(holdText);
+			std::string line = "Lines:\n" + std::to_string(linecount);
+			linesText.setString(line);
+			window.draw(linesText);
+			if (state == State::GameOver)
 			{
-				text.setString("SFML Tetris\nStefan Alexander");
+				text.setString("GameOver");
 				window.draw(text);
 			}
 			else
 			{
-				nextText.setString("Next:");
-				window.draw(nextText);
-				holdText.setString("Hold:");
-				window.draw(holdText);
-				std::string line = "Lines:\n" + std::to_string(linecount);
-				linesText.setString(line);
-				window.draw(linesText);
-				if (state == State::GameOver)
+				if (step % 4 == 0)
 				{
-					text.setString("GameOver");
-					window.draw(text);
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !block->startedFalling())
+					{
+						block->drop();
+					}
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
+					{
+						block->move(0, 1);
+					}
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
+					{
+						block->move(-1, 0);
+					}
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
+					{
+						block->move(1, 0);
+					}
 				}
-				else
+				if (step % 7 == 0)
 				{
-					if (step % 4 == 0)
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z)) 
 					{
-						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !block->startedFalling())
-						{
-							block->drop();
-						}
-						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
-						{
-							block->move(0, 1);
-						}
-						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
-						{
-							block->move(-1, 0);
-						}
-						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
-						{
-							block->move(1, 0);
-						}
+						block->rotate(true);
 					}
-					if (step % 7 == 0)
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
 					{
-						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z)) 
-						{
-							block->rotate(true);
-						}
-						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
-						{
-							block->rotate(false);
-						}
-						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
-						{
-							if (holdtype == -1)
-							{
-								holdtype = block->getType();
-								block.reset(new Block(nextblocks.front()));
-								nextblocks.pop_front();
-								nextblocks.emplace_back(dis(gen));
-							}
-							else if (canSwap)
-							{
-								auto temp = block->getType();
-								block.reset(new Block(holdtype));
-								holdtype = temp;
-								canSwap = false;
-							}
-						}
+						block->rotate(false);
 					}
-					auto blockMoving = false;
-					auto moved = false;
-					if (step % 10 == 0) 
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
 					{
-						moved = true;
-						blockMoving = block->move(0, 1);
-					}
-					if (moved && !blockMoving)
-					{
-						block->placeBoard();
-						linecount += checkLines();
-						if (block->isOverflow())
+						if (holdtype == -1)
 						{
-							state = State::GameOver;
-						}
-						else
-						{
+							holdtype = block->getType();
 							block.reset(new Block(nextblocks.front()));
 							nextblocks.pop_front();
 							nextblocks.emplace_back(dis(gen));
-							step = 0;
-							canSwap = true;
+						}
+						else if (canSwap)
+						{
+							auto temp = block->getType();
+							block.reset(new Block(holdtype));
+							holdtype = temp;
+							canSwap = false;
 						}
 					}
 				}
-				drawBackground(window);
+				auto blockMoving = false;
+				auto moved = false;
+				if (step % 10 == 0) 
+				{
+					moved = true;
+					blockMoving = block->move(0, 1);
+				}
+				if (moved && !blockMoving)
+				{
+					block->placeBoard();
+					linecount += checkLines();
+					if (block->isOverflow())
+					{
+						state = State::GameOver;
+					}
+					else
+					{
+						block.reset(new Block(nextblocks.front()));
+						nextblocks.pop_front();
+						nextblocks.emplace_back(dis(gen));
+						step = 0;
+						canSwap = true;
+					}
+				}
+			}
+			drawBackground(window);
 
 				// Draw next blocks.
-				auto offset = 4;
-				for (unsigned int i = 0; i < nextblocks.size(); ++i)
-				{
-					Block next(nextblocks.at(i));
-					next.placeScreen(15, offset);
-					next.draw(window);
-					offset += 4;
-				}
+			auto offset = 4;
+			for (unsigned int i = 0; i < nextblocks.size(); ++i)
+			{
+				Block next(nextblocks.at(i));
+				next.placeScreen(15, offset);
+				next.draw(window);
+				offset += 4;
+			}
 
 				// Draw hold block.
-				if (holdtype != -1)
-				{
-					Block hold(holdtype);
-					hold.placeScreen(-6, 8);
-					hold.setGhost(!canSwap);
-					hold.draw(window);
-				}
+			if (holdtype != -1)
+			{
+				Block hold(holdtype);
+				hold.placeScreen(-6, 8);
+				hold.setGhost(!canSwap);
+				hold.draw(window);
+			}
 
 				// Draw current block.
-				block->draw(window);
+			block->draw(window);
 
 				// Create and draw ghost block.
-				Block ghost = *block;
-				ghost.setGhost(true);
-				ghost.drop();
-				ghost.draw(window);
-			}
+			Block ghost = *block;
+			ghost.setGhost(true);
+			ghost.drop();
+			ghost.draw(window);
 			window.display();
 		}
 	}
