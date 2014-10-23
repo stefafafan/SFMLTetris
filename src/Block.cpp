@@ -138,6 +138,11 @@ auto Block::isOverflow() -> bool
 	return (top() + y) <= 0;
 }
 
+auto Block::startedFalling() -> bool
+{
+	return (top() + y) <= 1;
+}
+
 auto Block::placeScreen(int newx, int newy) -> void
 {
 	x = newx;

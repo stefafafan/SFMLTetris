@@ -28,6 +28,7 @@ public:
 	auto bottom() -> int;
 	
 	auto getColor() -> sf::Color { return constants::blockcolors.at(type); }
+	auto getType() -> unsigned int { return type; }
 	
 	auto move(int incx, int incy) -> bool;
 	auto drop() -> void;
@@ -38,6 +39,7 @@ public:
 
 	auto placeScreen(int newx, int newy) -> void;
 	auto isOverflow() -> bool;
+	auto startedFalling() -> bool;
 
 	auto draw(sf::RenderWindow& wnd) -> void override 
 	{

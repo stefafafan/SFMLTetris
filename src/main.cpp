@@ -19,6 +19,7 @@ private:
 	sf::Font aileronBlack;
 	sf::Text text;
 	sf::Text nextText;
+	sf::Text holdText;
 	unsigned int step;
 
 public:
@@ -35,7 +36,10 @@ public:
 		text.setString("Tetris");
 
 		nextText = text;
-		nextText.setPosition((2*constants::wndWidth/3)+10, 10);
+		nextText.setPosition((2*constants::wndWidth/3)+30, 10);
+
+		holdText = text;
+		holdText.setPosition((constants::wndWidth/7), constants::wndHeight/4);
 
 		setupBackground();
 	}
@@ -46,6 +50,8 @@ public:
 		std::uniform_int_distribution<int> dis(0, 6);
 		std::deque<int> nextblocks { dis(gen), dis(gen),dis(gen) };
 		std::unique_ptr<Block> block(new Block(dis(gen)));
+		auto holdtype = -1;
+		auto canSwap = true;
 		for (;;++step)
 		{
 			window.clear(sf::Color::Black);
@@ -68,6 +74,8 @@ public:
 			{
 				nextText.setString("Next:");
 				window.draw(nextText);
+				holdText.setString("Hold:");
+				window.draw(holdText);
 				if (state == State::GameOver)
 				{
 					text.setString("GameOver");
@@ -77,7 +85,7 @@ public:
 				{
 					if (step % 4 == 0)
 					{
-						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !block->startedFalling())
 						{
 							block->drop();
 						}
@@ -104,6 +112,23 @@ public:
 						{
 							block->rotate(false);
 						}
+						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
+						{
+							if (holdtype == -1)
+							{
+								holdtype = block->getType();
+								block.reset(new Block(nextblocks.front()));
+								nextblocks.pop_front();
+								nextblocks.emplace_back(dis(gen));
+							}
+							else if (canSwap)
+							{
+								auto temp = block->getType();
+								block.reset(new Block(holdtype));
+								holdtype = temp;
+								canSwap = false;
+							}
+						}
 					}
 					auto blockMoving = false;
 					auto moved = false;
@@ -126,10 +151,13 @@ public:
 							nextblocks.pop_front();
 							nextblocks.emplace_back(dis(gen));
 							step = 0;
+							canSwap = true;
 						}
 					}
 				}
 				drawBackground(window);
+
+				// Draw next blocks.
 				auto offset = 4;
 				for (unsigned int i = 0; i < nextblocks.size(); ++i)
 				{
@@ -138,7 +166,20 @@ public:
 					next.draw(window);
 					offset += 4;
 				}
+
+				// Draw hold block.
+				if (holdtype != -1)
+				{
+					Block hold(holdtype);
+					hold.placeScreen(-5, 8);
+					hold.setGhost(!canSwap);
+					hold.draw(window);
+				}
+
+				// Draw current block.
 				block->draw(window);
+
+				// Create and draw ghost block.
 				Block ghost = *block;
 				ghost.setGhost(true);
 				ghost.drop();
