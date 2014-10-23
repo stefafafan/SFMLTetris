@@ -52,8 +52,9 @@ auto drawBackground(sf::RenderWindow& wnd) -> void
 	}
 }
 
-auto checkLines() -> void
+auto checkLines() -> int
 {
+	auto lines = 0;
 	for (unsigned int i = 1; i < board.size()-1; ++i)
 	{
 		auto isFull = true;
@@ -68,9 +69,11 @@ auto checkLines() -> void
 		}
 		if (isFull)
 		{
+			lines++;
 			deleteLine(i);
 		}
 	}
+	return lines;
 }
 
 auto deleteLine(int linenum) -> void

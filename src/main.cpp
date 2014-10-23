@@ -2,6 +2,7 @@
 #include <memory>
 #include <random>
 #include <deque>
+#include <string>
 #include "Block.hpp"
 #include "Helpers.hpp"
 
@@ -14,18 +15,21 @@ private:
 		InGame,
 		GameOver
 	};
-	State state{State::Title};
+	State state{State::InGame};
 	sf::RenderWindow window{{constants::wndWidth, constants::wndHeight}, "SFML Tetris"};
 	sf::Font aileronBlack;
 	sf::Text text;
 	sf::Text nextText;
 	sf::Text holdText;
+	sf::Text linesText;
 	unsigned int step;
+	unsigned int linecount;
 
 public:
 	Game()
 	{
 		step = 0;
+		linecount = 0;
 		window.setFramerateLimit(60);
 		aileronBlack.loadFromFile("./Aileron-Black.otf");
 
@@ -41,6 +45,9 @@ public:
 		holdText = text;
 		holdText.setPosition((constants::wndWidth/7), constants::wndHeight/4);
 
+		linesText = text;
+		linesText.setPosition((constants::wndWidth/7), constants::wndHeight/2);
+
 		setupBackground();
 	}
 	auto run()
@@ -52,12 +59,25 @@ public:
 		std::unique_ptr<Block> block(new Block(dis(gen)));
 		auto holdtype = -1;
 		auto canSwap = true;
+		sf::Event event;
 		for (;;++step)
 		{
+			window.pollEvent(event);
+			if (event.type == sf::Event::Closed)
+			{
+				window.close();
+				break;
+			}
 			window.clear(sf::Color::Black);
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) 
 			{
-				break;
+				setupBackground();
+				nextblocks.clear();
+				nextblocks = { dis(gen), dis(gen),dis(gen) };
+				block.reset(new Block(dis(gen)));
+				holdtype = -1;
+				canSwap = true;
+				state = State::InGame;
 			}
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Return))
@@ -76,6 +96,9 @@ public:
 				window.draw(nextText);
 				holdText.setString("Hold:");
 				window.draw(holdText);
+				std::string line = "Lines:\n" + std::to_string(linecount);
+				linesText.setString(line);
+				window.draw(linesText);
 				if (state == State::GameOver)
 				{
 					text.setString("GameOver");
@@ -140,7 +163,7 @@ public:
 					if (moved && !blockMoving)
 					{
 						block->placeBoard();
-						checkLines();
+						linecount += checkLines();
 						if (block->isOverflow())
 						{
 							state = State::GameOver;
@@ -171,7 +194,7 @@ public:
 				if (holdtype != -1)
 				{
 					Block hold(holdtype);
-					hold.placeScreen(-5, 8);
+					hold.placeScreen(-6, 8);
 					hold.setGhost(!canSwap);
 					hold.draw(window);
 				}
