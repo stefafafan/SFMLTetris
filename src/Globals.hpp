@@ -9,7 +9,7 @@ using blockcoord = std::array<std::pair<int, int>, 4>;
 
 namespace constants
 {
-	constexpr int wndWidth{800}, wndHeight{450};
+	constexpr int wndWidth{1280}, wndHeight{720};
 	constexpr int bdWidth{10}, bdHeight{20};
 
 	constexpr std::array<blockcoord, 7> blocks = {{

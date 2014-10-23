@@ -54,48 +54,58 @@ public:
 				text.setString("SFML Tetris\nStefan Alexander");
 				window.draw(text);
 			}
-			else if (state == State::GameOver)
-			{
-				text.setString("GameOver");
-				window.draw(text);
-			}
 			else
 			{
-				if (step % 4 == 0)
+				if (state == State::GameOver)
 				{
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
-					{
-						block->move(0, 1);
-					}
-					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
-					{
-						block->move(-1, 0);
-					}
-					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
-					{
-						block->move(1, 0);
-					}
+					text.setString("GameOver");
+					window.draw(text);
 				}
-				if (step % 7 == 0)
+				else
 				{
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
+					if (step % 4 == 0)
 					{
-						block->rotate();
+						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
+						{
+							block->move(0, 1);
+						}
+						else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
+						{
+							block->move(-1, 0);
+						}
+						else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
+						{
+							block->move(1, 0);
+						}
 					}
-				}
-				auto blockMoving = false;
-				auto moved = false;
-				if (step % 10 == 0) 
-				{
-					moved = true;
-					blockMoving = block->move(0, 1);
-				}
-				if (moved && !blockMoving)
-				{
-					block->placeBoard();
-					checkLines();
-					block.reset(new Block());
-					step = 0;
+					if (step % 7 == 0)
+					{
+						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
+						{
+							block->rotate();
+						}
+					}
+					auto blockMoving = false;
+					auto moved = false;
+					if (step % 10 == 0) 
+					{
+						moved = true;
+						blockMoving = block->move(0, 1);
+					}
+					if (moved && !blockMoving)
+					{
+						block->placeBoard();
+						checkLines();
+						if (block->isOverflow())
+						{
+							state = State::GameOver;
+						}
+						else
+						{
+							block.reset(new Block());
+							step = 0;
+						}
+					}
 				}
 				drawBackground(window);
 				block->draw(window);

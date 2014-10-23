@@ -29,8 +29,9 @@ public:
 	auto rotate() -> void;
 
 	auto placeBoard() -> void;
-
 	auto isColliding() -> bool;
+
+	auto isOverflow() -> bool;
 
 	auto draw(sf::RenderWindow& wnd) -> void override 
 	{

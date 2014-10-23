@@ -78,7 +78,6 @@ auto Block::placeBoard() -> void
 {
 	for (auto coord : coordinates)
 	{
-		// std::cout << coord.first + x << ", " << coord.second + y << std::endl;
 		board.at(coord.second+y).at(coord.first+x) = type;
 	}
 }
@@ -99,4 +98,9 @@ auto Block::isColliding() -> bool
 		}
 	}
 	return colliding;
+}
+
+auto Block::isOverflow() -> bool
+{
+	return (top() + y) <= 0;
 }

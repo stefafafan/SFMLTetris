@@ -77,7 +77,7 @@ auto deleteLine(int linenum) -> void
 {
 	for (unsigned int i = linenum; i >= 2; --i)
 	{
-		for (unsigned int j = 0; j < board.at(i).size(); ++j)
+		for (unsigned int j = 1; j < board.at(i).size()-1; ++j)
 		{
 			board.at(i).at(j) = board.at(i-1).at(j);
 		}
