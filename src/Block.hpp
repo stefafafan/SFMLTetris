@@ -14,9 +14,12 @@ private:
 	unsigned int type;
 
 public:
-	Block():x(floor(constants::bdWidth/2)), y(0) { generateBlock(); }
+	Block(unsigned int t):x(floor(constants::bdWidth/2)), y(0), type(t)
+	{ //generateBlock(); 
+		coordinates = constants::blocks.at(type);
+	}
 	
-	auto generateBlock() -> void;
+	//auto generateBlock() -> void;
 	
 	auto right() -> int;
 	auto left() -> int;
@@ -30,6 +33,8 @@ public:
 
 	auto placeBoard() -> void;
 	auto isColliding() -> bool;
+
+	auto placeScreen(int newx, int newy) -> void;
 
 	auto isOverflow() -> bool;
 

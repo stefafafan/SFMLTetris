@@ -2,14 +2,14 @@
 #include <random>
 #include <algorithm>
 
-auto Block::generateBlock() -> void
-{
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_int_distribution<int> dis(0, 6);
-	type = dis(gen);
-	coordinates = constants::blocks.at(type);
-}
+// auto Block::generateBlock() -> void
+// {
+	// std::random_device rd;
+	// std::mt19937 gen(rd());
+	// std::uniform_int_distribution<int> dis(0, 6);
+// 	type = dis(gen);
+// 	coordinates = constants::blocks.at(type);
+// }
 
 auto Block::right() -> int
 {
@@ -103,4 +103,10 @@ auto Block::isColliding() -> bool
 auto Block::isOverflow() -> bool
 {
 	return (top() + y) <= 0;
+}
+
+auto Block::placeScreen(int newx, int newy) -> void
+{
+	x = newx;
+	y = newy;
 }

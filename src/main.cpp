@@ -1,5 +1,7 @@
 #include <iostream>
 #include <memory>
+#include <random>
+#include <deque>
 #include "Block.hpp"
 #include "Helpers.hpp"
 
@@ -16,6 +18,7 @@ private:
 	sf::RenderWindow window{{constants::wndWidth, constants::wndHeight}, "SFML Tetris"};
 	sf::Font aileronBlack;
 	sf::Text text;
+	sf::Text nextText;
 	unsigned int step;
 
 public:
@@ -31,11 +34,18 @@ public:
 		text.setColor(sf::Color::White);
 		text.setString("Tetris");
 
+		nextText = text;
+		nextText.setPosition((2*constants::wndWidth/3)+10, 10);
+
 		setupBackground();
 	}
 	auto run()
 	{
-		std::unique_ptr<Block> block(new Block());
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<int> dis(0, 6);
+		std::deque<int> nextblocks { dis(gen), dis(gen),dis(gen) };
+		std::unique_ptr<Block> block(new Block(dis(gen)));
 		for (;;++step)
 		{
 			window.clear(sf::Color::Black);
@@ -56,6 +66,8 @@ public:
 			}
 			else
 			{
+				nextText.setString("Next:");
+				window.draw(nextText);
 				if (state == State::GameOver)
 				{
 					text.setString("GameOver");
@@ -102,12 +114,23 @@ public:
 						}
 						else
 						{
-							block.reset(new Block());
+							block.reset(new Block(nextblocks.front()));
+							nextblocks.pop_front();
+							nextblocks.emplace_back(dis(gen));
 							step = 0;
 						}
 					}
 				}
 				drawBackground(window);
+				auto offset = 4;
+				for (unsigned int i = 0; i < nextblocks.size(); ++i)
+				{
+					Block next(nextblocks.at(i));
+					next.placeScreen(15, offset);
+					next.draw(window);
+					offset += 4;
+				}
+				
 				block->draw(window);
 			}
 			window.display();
