@@ -3,7 +3,7 @@ CFLAGS=-c -Wall -Wextra -pedantic
 LDFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
 SOURCES=main.cpp Entity.hpp Block.cpp Helpers.cpp Globals.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE=sfml
+EXECUTABLE=tetris
 
 all: $(SOURCES) $(EXECUTABLE)
 	

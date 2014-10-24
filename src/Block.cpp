@@ -113,7 +113,7 @@ auto Block::isColliding() -> bool
 	auto colliding = false;
 	for (auto coord : coordinates)
 	{
-		if (coord.second+y < 0 || coord.first+x < 0)
+		if (coord.second+y < 0 || coord.first+x < 0 || coord.second+y >= constants::bdHeight+1 || coord.first+x >= constants::bdWidth+1)
 		{
 			colliding = true;
 		}
