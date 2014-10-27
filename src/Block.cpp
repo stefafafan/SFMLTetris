@@ -72,7 +72,7 @@ auto Block::rotate(bool reverse) -> void
 		if (reverse)
 		{
 			coord.first = 1-tempy;
-			coord.second = tempx;	
+			coord.second = tempx;   
 		}
 		else
 		{
@@ -89,7 +89,7 @@ auto Block::rotate(bool reverse) -> void
 			if (reverse)
 			{
 				coord.first = tempy;
-				coord.second = 1-tempx;	
+				coord.second = 1-tempx; 
 			}
 		else
 			{
