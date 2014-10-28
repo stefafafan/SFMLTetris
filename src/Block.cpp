@@ -34,12 +34,12 @@ auto Block::bottom() -> int
 auto Block::move(int incx, int incy) -> bool
 {
 	auto canMove = false;
-	x += incx;
+	x += (incx*0.3);
 	if (isColliding())
 	{
 		x -= incx;
 	}
-	y += incy;
+	y += (incy*0.3);
 	canMove = true;
 	if (isColliding())
 	{
@@ -113,13 +113,13 @@ auto Block::isColliding() -> bool
 	auto colliding = false;
 	for (auto coord : coordinates)
 	{
-		if (coord.second+y < 0 || coord.first+x < 0 || coord.second+y >= constants::bdHeight+1 || coord.first+x >= constants::bdWidth+1)
+		if (floor(coord.second+y) < 0 || floor(coord.first+x) < 0 || floor(coord.second+y) >= constants::bdHeight+1 || floor(coord.first+x) >= constants::bdWidth+1)
 		{
 			colliding = true;
 		}
 		else
 		{
-			switch (board.at(coord.second+y).at(coord.first+x))
+			switch (board.at(floor(coord.second+y)).at(floor(coord.first+x)))
 			{
 				case 7:
 				case 9:
@@ -135,12 +135,12 @@ auto Block::isColliding() -> bool
 
 auto Block::isOverflow() -> bool
 {
-	return (top() + y) <= 0;
+	return (floor(top() + y)) <= 0;
 }
 
 auto Block::startedFalling() -> bool
 {
-	return (top() + y) <= 1;
+	return (floor(top() + y)) <= 1;
 }
 
 auto Block::placeScreen(int newx, int newy) -> void

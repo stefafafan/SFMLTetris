@@ -50,7 +50,7 @@ public:
 		}
 		for (auto coord : coordinates)
 		{
-			drawSingleBlock(wnd, color, sf::Color::Black, coord.first+x, coord.second+y);
+			drawSingleBlock(wnd, color, sf::Color::Black, floor(coord.first+x), floor(coord.second+y));
 		}
 	}
 };

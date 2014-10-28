@@ -51,23 +51,40 @@ public:
 	}
 	auto run() -> void
 	{
+		// Used for generating random blocks.
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_int_distribution<int> dis(0, 6);
+
+		// Keep track of the next blocks.
 		std::deque<int> nextblocks { dis(gen), dis(gen),dis(gen) };
-		std::unique_ptr<Block> block(new Block(dis(gen)));
+
+		// Current falling block.
+		auto block = std::make_unique<Block>(dis(gen));
+
+		// Type of the holding block.
 		auto holdtype = -1;
+
+		// Boolean for swapping blocks.
 		auto canSwap = true;
+
+		// Currently only used to capture clicking the close button on the window.
 		sf::Event event;
+
+		// Booleans for button oresses.
+		std::array<bool, 3> buttonPressed = {false, false, false};
+
 		for (;;++step)
 		{
+			// Update.
+
+			window.clear(sf::Color::Black);
 			window.pollEvent(event);
 			if (event.type == sf::Event::Closed)
 			{
 				window.close();
 				break;
 			}
-			window.clear(sf::Color::Black);
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) 
 			{
 				setupBackground();
@@ -79,15 +96,6 @@ public:
 				linecount = 0;
 				state = State::InGame;
 			}
-
-
-			nextText.setString("Next:");
-			window.draw(nextText);
-			holdText.setString("Hold:");
-			window.draw(holdText);
-			std::string line = "Lines:\n" + std::to_string(linecount);
-			linesText.setString(line);
-			window.draw(linesText);
 			if (state == State::GameOver)
 			{
 				text.setString("GameOver");
@@ -95,36 +103,52 @@ public:
 			}
 			else
 			{
-				if (step % 4 == 0)
+				// Movement.
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !block->startedFalling())
 				{
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !block->startedFalling())
-					{
-						block->drop();
-					}
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
-					{
-						block->move(0, 1);
-					}
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
-					{
-						block->move(-1, 0);
-					}
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
-					{
-						block->move(1, 0);
-					}
+					block->drop();
 				}
-				if (step % 7 == 0)
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) 
 				{
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z)) 
+					block->move(0, 1);
+				}
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) 
+				{
+					block->move(-1, 0);
+				}
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) 
+				{
+					block->move(1, 0);
+				}
+
+				// Rotation, swap.
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z)) 
+				{
+					if (!buttonPressed.at(0))
 					{
 						block->rotate(true);
+						buttonPressed.at(0) = true;
 					}
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
+				}
+				else
+				{
+					buttonPressed.at(0) = false;
+				}
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) 
+				{
+					if (!buttonPressed.at(1))
 					{
 						block->rotate(false);
+						buttonPressed.at(1) = true;
 					}
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
+				}
+				else
+				{
+					buttonPressed.at(1) = false;
+				}
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift))
+				{
+					if (!buttonPressed.at(2))
 					{
 						if (holdtype == -1)
 						{
@@ -140,8 +164,15 @@ public:
 							holdtype = temp;
 							canSwap = false;
 						}
+						buttonPressed.at(2) = true;
 					}
 				}
+				else
+				{
+					buttonPressed.at(2) = false;
+				}
+
+				// Move block down.
 				auto blockMoving = false;
 				auto moved = false;
 				if (step % 10 == 0) 
@@ -149,6 +180,8 @@ public:
 					moved = true;
 					blockMoving = block->move(0, 1);
 				}
+
+				// Change block or game over.
 				if (moved && !blockMoving)
 				{
 					block->placeBoard();
@@ -167,9 +200,21 @@ public:
 					}
 				}
 			}
+
+			// Draw.
+
+			// UI.
+			nextText.setString("Next:");
+			window.draw(nextText);
+			holdText.setString("Hold:");
+			window.draw(holdText);
+			std::string line = "Lines:\n" + std::to_string(linecount);
+			linesText.setString(line);
+			window.draw(linesText);
+
 			drawBackground(window);
 
-				// Draw next blocks.
+			// Draw next blocks.
 			auto offset = 4;
 			for (unsigned int i = 0; i < nextblocks.size(); ++i)
 			{
@@ -179,7 +224,7 @@ public:
 				offset += 4;
 			}
 
-				// Draw hold block.
+			// Draw hold block.
 			if (holdtype != -1)
 			{
 				Block hold(holdtype);
@@ -188,10 +233,10 @@ public:
 				hold.draw(window);
 			}
 
-				// Draw current block.
+			// Draw current block.
 			block->draw(window);
 
-				// Create and draw ghost block.
+			// Create and draw ghost block.
 			Block ghost = *block;
 			ghost.setGhost(true);
 			ghost.drop();
